@@ -57,6 +57,7 @@ sql_highlight <- function(sql_code) {
 buildQuery <- function(address, chain){
 
 query <- { "
+# Query won't run without internal dev API key 
 with raw as (
     SELECT
     lower('THE_NFT_ADDRESS') as nft_address,
@@ -107,7 +108,7 @@ query <- gsub("THE_CHAIN", chain, query)
 }
 
 submitQuery <- function(address, chain = 'ethereum', discord = ""){
-
+  # Query won't run without internal dev API key 
 query <- {
   "
   insert into 
