@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+
+#sql-code {
+  white-space: pre-wrap;
+  background-color: #F3F5F7;
+  padding: 14px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  border-radius: 5px;
+  overflow-x: auto;
+  min-height: 0.5vh;
+}
+
+#sql-code .keyword {
+  color: #972EFF;
+}
+
+#sql-code .func_ {
+  color: #6574FF;
+}
+
+#sql-code .operator {
+  color: #EC5646;
+}
+
+.sql-head {
+  background-color: #888;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px 10px 0 0; /* Rounded corners at the top */
+}
+
+.copy-button {
+  background-color: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.copy-button .fa-copy {
+  margin-right: 5px;
+}
+
