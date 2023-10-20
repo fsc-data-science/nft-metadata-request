@@ -1,4 +1,3 @@
-
 server <- function(input, output, session) {
 
   # Build Query ----

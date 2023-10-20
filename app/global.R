@@ -55,9 +55,8 @@ sql_highlight <- function(sql_code) {
 # Query Build ----
 
 buildQuery <- function(address, chain){
-
+  # Query won't run without internal dev API key 
 query <- { "
-# Query won't run without internal dev API key 
 with raw as (
     SELECT
     lower('THE_NFT_ADDRESS') as nft_address,
