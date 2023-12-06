@@ -54,6 +54,34 @@ sql_highlight <- function(sql_code) {
 
 # Query Build ----
 
+#' Check 1: Do we have NFT already ----
+
+checkNFT <- function(nft_address, chain){
+  
+  query <- {
+    
+    "
+  with select_NFT as ( 
+  select lower('__NFT_ADDRESS__') as nft_address from dual 
+) 
+  select * from __THECHAIN__.nft.dim_nft_metadata where contract_address = (select nft_address from select_nft) limit 5;
+    "
+  }
+  
+query <- gsub('__NFT_ADDRESS__', nft_address, x = query)
+query <- gsub('__THECHAIN__', chain, x = query)
+
+res <- tryCatch({
+  temp_ <- nrow(shroomDK::auto_paginate_query(query, api_key = api.key))
+  if(temp_ > 0) return(TRUE)
+}, error = function(e){
+    return(FALSE)
+} 
+)
+
+return(res)
+}
+
 buildQuery <- function(address, chain){
   # Query won't run without internal dev API key 
 query <- { "

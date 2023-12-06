@@ -1,11 +1,17 @@
 server <- function(input, output, session) {
 
+  # Check Query ----
+  check_query <- reactive({
+    checkNFT(input$tokenaddress, input$chain)
+  })
+  
   # Build Query ----
   built_query <- reactive({
     buildQuery(input$tokenaddress, input$chain)
   })
 
   observe({
+    cq <<- check_query()
     bq <<- built_query()
   })
   
@@ -23,7 +29,17 @@ server <- function(input, output, session) {
     withProgress(message = 'Querying Flipside', value = 0, {
       
       incProgress(3/5, detail = paste("Checking NFT Data"))
+      if(check_query() == TRUE){
+        return(
+          data.frame(
+            traits_count = NA,
+            description_count = NA
+          )
+        )
+      } else {
+        incProgress(1/5, detail = paste("Looks like Flipside is missing it, checking nodes"))
       auto_paginate_query(query = built_query(), api_key = api.key, data_source = "data-science")    
+      }
 
     })
   }, 
@@ -40,8 +56,17 @@ server <- function(input, output, session) {
     td <- tbl_data()
     
       result_tbl <- data.frame(
-      "Traits Available" = ifelse(td$traits_count > 0, "YES", "No, please request update"),
-      "Description Available" = ifelse(td$description_count > 0, "YES", "No, please request update"), 
+      "Traits Available" = ifelse(is.na(td$traits_count),
+                                    "Flipside has it!",
+                           ifelse(td$traits_count > 0, 
+                                    "Node has it, we don't, please request update",
+                                  "Looks like the node doesn't have it either.")
+                           ),
+      "Description Available" = ifelse(is.na(td$description_count), 
+                                       "Flipside has it!",
+                                ifelse(td$description > 0,
+                                       "Node has it, we don't, please request update",
+                                       "Looks like the node doesn't have it either.")), 
       check.names = FALSE
     )
     
@@ -51,7 +76,7 @@ server <- function(input, output, session) {
   output$conditional_submit_contract <- renderUI({
     td <- tbl_data()
     
-    if(td$traits_count > 0 & td$description_count > 0){
+    if(is.na(td$traits_count) & is.na(td$description_count)){
       tagList(
         hr(),
         p("Looks like we have both traits & descriptions for this one! Thank you for checking.")
