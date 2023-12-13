@@ -49,3 +49,4 @@ po/*~
 rsconnect/
 app/api_key.txt
 api_key.txt
+app/snowflake-details.json
