@@ -9,6 +9,11 @@ library(shinyWidgets)
 library(htmltools)
 library(shinyBS)
 library(stringr)
+library(httr)
+library(jsonlite)
+library(odbc)
+library(dbplyr)
+
 
 app.name.short = 'nft-metadata'
 this.app.name = 'nft-metadata-requestor'
@@ -64,7 +69,8 @@ checkNFT <- function(nft_address, chain){
   with select_NFT as ( 
   select lower('__NFT_ADDRESS__') as nft_address from dual 
 ) 
-  select * from __THECHAIN__.nft.dim_nft_metadata where contract_address = (select nft_address from select_nft) limit 5;
+  select * from __THECHAIN__.nft.dim_nft_collection_metadata
+  where contract_address = (select nft_address from select_nft) limit 5;
     "
   }
   
@@ -135,6 +141,27 @@ query <- gsub("THE_CHAIN", chain, query)
 }
 
 submitQuery <- function(address, chain = 'ethereum', discord = ""){
+  # Query won't run without direct Snowflake Prod Credentials
+  query <- {
+    "
+  insert into 
+crosschain.bronze_public.user_metadata
+select 
+'THE_NFT_ADDRESS' as nft_address,
+'THE_CHAIN' as blockchain,
+'THE_DISCORD_USER' as discord_user,
+sysdate() as _inserted_timestamp;
+  "
+  }  
+  
+  query <- gsub("THE_NFT_ADDRESS", address, query)
+  query <- gsub("THE_CHAIN", chain, query)
+  query <- gsub("THE_DISCORD_USER", discord, query)
+  
+  return(query)
+}
+
+submitQueryDev <- function(address, chain = 'ethereum', discord = ""){
   # Query won't run without internal dev API key 
 query <- {
   "
@@ -154,3 +181,28 @@ query <- gsub("THE_DISCORD_USER", discord, query)
   
 return(query)
 }
+
+# Need to call Snowflake directly for Production WRITE ----
+
+# Always gitignore credentials and keys
+snowflake_credentials <- jsonlite::read_json('snowflake-details.json')
+
+submitSnowflake <- function(query, driver, user, pass, role, server, warehouse, database){
+  
+ connection <- dbConnect(
+    odbc::odbc(),
+    .connection_string = paste0("Driver={",driver,"}",
+                                ";Server={",server,
+                                "};uid=",user,
+                                ";role=",role,
+                                ";pwd=",pass,
+                                ";warehouse=", warehouse,
+                                ";database=", database)
+  )
+  
+output <- dbGetQuery(connection, query)
+  dbDisconnect(connection)
+  return(output)
+  
+}
+
