@@ -70,7 +70,7 @@ checkNFT <- function(nft_address, chain){
   select lower('__NFT_ADDRESS__') as nft_address from dual 
 ) 
   select * from __THECHAIN__.nft.dim_nft_collection_metadata
-  where contract_address = (select nft_address from select_nft) limit 5;
+  where nft_address = (select nft_address from select_nft) limit 5;
     "
   }
   
