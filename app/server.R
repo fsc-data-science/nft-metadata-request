@@ -91,12 +91,12 @@ server <- function(input, output, session) {
         hr(),
         p("Looks like we have both traits & descriptions for this one! Thank you for checking.")
       )
-    } else if (td$traits_count == 0 |
+    } else if (td$traits_count == 0 &
                td$description_count == 0 
                ) {
       tagList(
         hr(),
-        p("Looks like the project is not sharing its metadata with our node. Please try another project.")
+        p("Looks like the project is not sharing any metadata with our node. Please try another project.")
       )
     } else {
       dh <- input$discord_handle
